@@ -3,7 +3,7 @@
 This Arduino project implements a hollow clock using an ESP8266, and other libraries. The clock's hands move to display the current time, and it is designed to be configurable for different WiFi networks.
 The project is based on this project on [instructables](https://www.instructables.com/Hollow-Clock-4).
 
-![Created by me]([https://assets.digitalocean.com/articles/alligator/boo.svg](https://ibb.co/9vGq6yY) "Hollow Clock 4")
+![Created by me]([https://ibb.co/9vGq6yY] "Hollow Clock 4")
 
 
 ## Features
