@@ -35,6 +35,10 @@ String ip = "";
 
 int target,current_pos;
 
+//for debug purposes
+int last_reset_current_pos;
+int last_reset_target;
+
 int delaytime = 2;
 int port[4] = {14,12,13,15};
 int total_steps = 0;
@@ -139,6 +143,12 @@ void setup() {
       "Target", []() { return target; }, 2000);
   dashboard->Add(
       "SSID", []() { return wifi_connected.c_str(); }, 2000);
+
+  // for debugging
+  dashboard->Add<int>(
+      "Last reset POS", []() { return last_reset_current_pos; }, 2000);
+  dashboard->Add<int>(
+      "Last reset Target", []() { return last_reset_target; }, 2000);
   server.begin();
   Serial.println("Started server.");
 
@@ -187,6 +197,8 @@ void loop() {
   
   target = get_current_time_steps();
   if (target < current_pos) { // 0 hours after 23 hours
+    last_reset_current_pos = current_pos;
+    last_reset_target = target;
     current_pos = current_pos - stepsPerRotation*12;
   }
 #endif
