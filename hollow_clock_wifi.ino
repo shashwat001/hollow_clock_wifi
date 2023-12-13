@@ -17,7 +17,6 @@
 Dashboard* dashboard;
 AsyncWebServer server(80);
 
-bool test = false;
 
 const int stepsPerRotation = 30720; // minute hand
 
@@ -31,6 +30,8 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 ESP8266WiFiMulti wifiMulti;
 const uint32_t connectTimeoutMs = 5000;
+String wifi_connected = "";
+String ip = "";
 
 int target,current_pos;
 
@@ -87,8 +88,15 @@ void connect_wifi() {
   // Register multi WiFi networks
   wifiMulti.addAP(WIFI1_SSID, WIFI1_PASSWD);
   wifiMulti.addAP(WIFI2_SSID, WIFI2_PASSWD);
+  wifiMulti.addAP(WIFI3_SSID, WIFI3_PASSWD);
 
   if (wifiMulti.run(connectTimeoutMs) == WL_CONNECTED) {
+    Serial.print("WiFi connected: ");
+    Serial.print(WiFi.SSID());
+    Serial.print(" ");
+    Serial.println(WiFi.localIP());
+    wifi_connected = WiFi.SSID();
+    ip = WiFi.localIP().toString();
   } else {
     Serial.println("WiFi not connected!");
   }
@@ -110,10 +118,10 @@ void setup() {
 
   // Set up mDNS responder:
   // - first argument is the domain name, in this example
-  //   the fully-qualified domain name is "esp8266.local"
+  //   the fully-qualified domain name is "wifi-clock.local"
   // - second argument is the IP address to advertise
   //   we send our IP address on the WiFi network
-  if (!MDNS.begin("esp8266")) {
+  if (!MDNS.begin("wifi-clock")) {
     Serial.println("Error setting up MDNS responder!");
     while (1) {
       delay(1000);
@@ -125,10 +133,12 @@ void setup() {
   dashboard = new Dashboard(&server);
 
   dashboard->Add<uint32_t>("Uptime", millis, 5000);
-  dashboard->Add<float>(
+  dashboard->Add<int>(
       "Current Pos", []() { return current_pos; }, 2000);
-  dashboard->Add<float>(
+  dashboard->Add<int>(
       "Target", []() { return target; }, 2000);
+  dashboard->Add(
+      "SSID", []() { return wifi_connected.c_str(); }, 2000);
   server.begin();
   Serial.println("Started server.");
 
@@ -152,7 +162,6 @@ void setup() {
 
 void loop() {
   MDNS.update();
-  test = !test;
   
 #if ACCELSTEPPER_MODE
   current_pos = stepper.currentPosition();
